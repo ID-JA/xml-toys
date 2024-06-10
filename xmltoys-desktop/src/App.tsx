@@ -12,10 +12,6 @@ function App() {
     <div className="container h-screen">
       <div className="space-x-4">
         <Button onClick={() => setState("generate-xml")}>Generate XML</Button>
-        <Button onClick={() => setState("generate-xml")}>Generate XML</Button>
-        <Button onClick={() => setState("generate-xml")}>Generate XML</Button>
-        <Button onClick={() => setState("generate-xml")}>Generate XML</Button>
-        <Button onClick={() => setState("generate-xml")}>Generate XML</Button>
         <Button onClick={() => setState("check-xml-diff")}>
           Check XML diff
         </Button>
