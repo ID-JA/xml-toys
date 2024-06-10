@@ -1,13 +1,13 @@
-import { Editor } from "@monaco-editor/react";
-import { Button } from "./ui/button";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import UploadField from "./UploadField";
+import { Button } from "./ui/button";
+import { Editor } from "@monaco-editor/react";
 import { downloadFile } from "@/lib/utils";
 
-function GenerateDTD() {
+function GenerateXSD() {
   const [file, setFile] = useState<any>(null);
   const [xmlContent, setXmlContent] = useState<string>("");
-  const [dtd, setDtd] = useState<string>("");
+  const [xsd, setXsd] = useState("");
 
   const handleUpload = async () => {
     if (!file) {
@@ -20,7 +20,7 @@ function GenerateDTD() {
 
     try {
       const response = await fetch(
-        "http://localhost:5135/api/XmlToys/generate-dtd",
+        "http://localhost:5135/api/XmlToys/generate-xsd",
         {
           method: "POST",
           body: formData,
@@ -32,14 +32,13 @@ function GenerateDTD() {
       }
 
       const data = await response.json();
-      const formattedDtd = data.dtd.replace(/\r\n/g, "\n");
-      setDtd(formattedDtd);
+      const formattedXsd = data.xsd.replace(/\r\n/g, "\n");
+      setXsd(formattedXsd);
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Error uploading file. Please try again.");
     }
   };
-
   return (
     <div className="grid grid-cols-2">
       <div>
@@ -64,7 +63,7 @@ function GenerateDTD() {
       <div>
         <Button
           className="mb-4 float-right"
-          onClick={() => downloadFile(dtd, "generated.dtd")}
+          onClick={() => downloadFile(xsd, "generatedXSD.xsd")}
         >
           Download
         </Button>
@@ -74,11 +73,11 @@ function GenerateDTD() {
           options={{
             readOnly: true,
           }}
-          value={dtd}
+          value={xsd}
         />
       </div>
     </div>
   );
 }
 
-export default GenerateDTD;
+export default GenerateXSD;
