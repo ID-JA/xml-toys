@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace XmlToys.API
 {
@@ -78,5 +80,43 @@ namespace XmlToys.API
                 yield return child.Value > 1 ? $"{child.Key}*" : child.Key;
             }
         }
+       
+        public static string GenerateXsd(XDocument xmlDocument)
+        {
+            using (var stream = new MemoryStream())
+            {
+                xmlDocument.Save(stream);
+                stream.Position = 0;
+
+                var schemaSet = new XmlSchemaSet();
+                var settings = new XmlReaderSettings
+                {
+                    DtdProcessing = DtdProcessing.Parse,
+                    ValidationType = ValidationType.None 
+                };
+
+                using (var reader = XmlReader.Create(stream, settings))
+                {
+                    var inference = new XmlSchemaInference();
+                    schemaSet = inference.InferSchema(reader);
+                }
+
+                if (schemaSet.Count > 0)
+                {
+                    var writer = new StringWriter();
+                    foreach (XmlSchema schema in schemaSet.Schemas())
+                    {
+                        schema.Write(writer);
+                    }
+                    return writer.ToString();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Failed to infer XML schema.");
+                }
+            }
+        }
+       
+
     }
 }

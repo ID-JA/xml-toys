@@ -31,5 +31,29 @@ namespace XmlToys.API.Controllers
                 return BadRequest($"XML is not valid. Error: {ex.Message}");
             }
         }
+
+        [HttpPost("generate-xsd")]
+        public IActionResult GenerateXsd(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("File is empty");
+            }
+
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var xmlDocument = XDocument.Load(stream);
+                    var xsd = XmlHelpers.GenerateXsd(xmlDocument);
+
+                    return Ok(new { xsd });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
