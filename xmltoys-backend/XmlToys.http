@@ -1,0 +1,6 @@
+@XmlToys_HostAddress = http://localhost:5135
+
+GET {{XmlToys_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
