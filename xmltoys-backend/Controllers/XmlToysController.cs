@@ -55,5 +55,52 @@ namespace XmlToys.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPost("xml-to-html")]
+        public IActionResult GenerateXslt([FromForm] IFormFile xmlFile, [FromForm] IFormFile xsltFile)
+        {
+            if (xmlFile == null || xmlFile.Length == 0)
+            {
+                return BadRequest("No XML file uploaded");
+            }
+
+            if (xsltFile == null || xsltFile.Length == 0)
+            {
+                return BadRequest("No XSLT file uploaded");
+            }
+
+            try
+            {
+                // Load XML document
+                XDocument xmlDocument;
+                using (var xmlStream = new MemoryStream())
+                {
+                    xmlFile.CopyTo(xmlStream);
+                    xmlStream.Position = 0;
+                    xmlDocument = XDocument.Load(xmlStream);
+                }
+
+                // Load XSLT
+                string xsltString;
+                using (var xsltStream = new MemoryStream())
+                {
+                    xsltFile.CopyTo(xsltStream);
+                    xsltStream.Position = 0;
+                    using (var reader = new StreamReader(xsltStream))
+                    {
+                        xsltString = reader.ReadToEnd();
+                    }
+                }
+
+                // Transform XML to HTML
+                var htmlContent = XmlHelpers.TransformXmlToHtml(xmlDocument, xsltString);
+
+                return Content(htmlContent, "text/html");
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                return BadRequest($"XML is not valid. Error: {ex.Message}");
+            }
+        }
     }
 }

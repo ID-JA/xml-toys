@@ -1,6 +1,7 @@
 ﻿using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using System.Xml.Xsl;
 
 namespace XmlToys.API
 {
@@ -116,7 +117,28 @@ namespace XmlToys.API
                 }
             }
         }
-       
+
+        public static string TransformXmlToHtml(XDocument xmlDocument, string xsltString)
+        {
+            using (var stringWriter = new StringWriter())
+            {
+                var xslt = new XslCompiledTransform();
+                using (var xsltReader = new StringReader(xsltString))
+                {
+                    using (var xmlReader = System.Xml.XmlReader.Create(xsltReader))
+                    {
+                        xslt.Load(xmlReader);
+                    }
+                }
+
+                using (var xmlReader = xmlDocument.CreateReader())
+                {
+                    xslt.Transform(xmlReader, null, stringWriter);
+                }
+
+                return stringWriter.ToString();
+            }
+        }
 
     }
 }
