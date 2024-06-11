@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Xml.Linq;
 
 namespace XmlToys.API.Controllers
@@ -102,5 +103,31 @@ namespace XmlToys.API.Controllers
                 return BadRequest($"XML is not valid. Error: {ex.Message}");
             }
         }
+
+        [HttpPost("convert-xml-to-json")]
+        public IActionResult ConvertXmlToJson([FromForm] IFormFile xmlFile)
+        {
+            if (xmlFile == null || xmlFile.Length == 0)
+                return BadRequest("No XML file uploaded.");
+
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    xmlFile.CopyTo(stream);
+                    stream.Position = 0;
+
+                    var xmlDocument = XDocument.Load(stream);
+                    var json = JsonConvert.SerializeXNode(xmlDocument, Formatting.Indented);
+
+                    return Ok(json);
+                }
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                return BadRequest($"XML is not valid. Error: {ex.Message}");
+            }
+        }
+
     }
 }
