@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import XmlToHtml from "./components/XmlToHtml";
 import XmlToJson from "./components/XmltToJson";
 import ValidationXML from "./components/ValidateXML";
+import XmlDiffChecker from "./components/XmlDiffChecker";
 
 type ComponentType = {
   "generate-dtd": () => JSX.Element;
@@ -13,6 +14,7 @@ type ComponentType = {
   "xml-to-html": () => JSX.Element;
   "xml-to-json": () => JSX.Element;
   "validate-xml": () => JSX.Element;
+  "xml-diff-checker": () => JSX.Element;
 };
 
 const Components = {
@@ -21,6 +23,7 @@ const Components = {
   "xml-to-html": XmlToHtml,
   "xml-to-json": XmlToJson,
   "validate-xml": ValidationXML,
+  "xml-diff-checker": XmlDiffChecker,
 };
 
 const activeClasses = "bg-red-500 hover:bg-red-500";
@@ -30,7 +33,7 @@ function App() {
   const Component = Components[state as keyof ComponentType];
   return (
     <div className="container h-screen">
-      <div className="space-x-4 p-4">
+      <div className="flex items-center justify-center gap-4 p-4">
         <Button
           className={clsx(state === "generate-dtd" && activeClasses)}
           onClick={() => setState("generate-dtd")}
@@ -60,6 +63,12 @@ function App() {
           onClick={() => setState("validate-xml")}
         >
           Validate XML
+        </Button>
+        <Button
+          className={clsx(state === "xml-diff-checker" && activeClasses)}
+          onClick={() => setState("xml-diff-checker")}
+        >
+          XML diff Checker
         </Button>
       </div>
       <br />
