@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+
+// using Newtonsoft.Json;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 
 namespace XmlToys.API.Controllers
 {
@@ -117,8 +121,10 @@ namespace XmlToys.API.Controllers
                     xmlFile.CopyTo(stream);
                     stream.Position = 0;
 
-                    var xmlDocument = XDocument.Load(stream);
-                    var json = JsonConvert.SerializeXNode(xmlDocument, Formatting.Indented);
+                    var xmlDocument = new XmlDocument();
+                    xmlDocument.Load(stream);
+
+                    var json = JsonConvert.SerializeXmlNode(xmlDocument, Newtonsoft.Json.Formatting.Indented);
 
                     return Ok(json);
                 }
@@ -126,6 +132,57 @@ namespace XmlToys.API.Controllers
             catch (System.Xml.XmlException ex)
             {
                 return BadRequest($"XML is not valid. Error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("validate-xml")]
+        public IActionResult ValidateXml([FromForm] IFormFile xmlFile, [FromForm] IFormFile xsdFile)
+        {
+            if (xmlFile == null || xmlFile.Length == 0 || xsdFile == null || xsdFile.Length == 0)
+                return BadRequest("Both XML and XSD files must be uploaded.");
+
+            var errors = new List<string>();
+
+            try
+            {
+                using (var xmlStream = new MemoryStream())
+                using (var xsdStream = new MemoryStream())
+                {
+                    xmlFile.CopyTo(xmlStream);
+                    xsdFile.CopyTo(xsdStream);
+                    xmlStream.Position = 0;
+                    xsdStream.Position = 0;
+
+                    var xmlDocument = new XmlDocument();
+                    xmlDocument.Load(xmlStream);
+
+                    var schemaSet = new XmlSchemaSet();
+                    schemaSet.Add(null, XmlReader.Create(xsdStream));
+
+                    xmlDocument.Schemas.Add(schemaSet);
+                    xmlDocument.Validate((sender, e) =>
+                    {
+                        if (e.Severity == XmlSeverityType.Error || e.Severity == XmlSeverityType.Warning)
+                        {
+                            errors.Add(e.Message);
+                        }
+                    });
+
+                    if (errors.Count != 0)
+                    {
+                        return BadRequest(new { errors });
+                    }
+
+                    return Ok("XML is valid.");
+                }
+            }
+            catch (XmlException ex)
+            {
+                return BadRequest($"XML is not valid. Error: {ex.Message}");
+            }
+            catch (XmlSchemaException ex)
+            {
+                return BadRequest($"XSD is not valid. Error: {ex.Message}");
             }
         }
 
