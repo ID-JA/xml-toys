@@ -10,3 +10,8 @@ an XML Swiss knife brings all XML tools into one place.
 - **XML Validation:** Validate an XML file against a provided XSD file and display validation errors.
 - **XML to JSON Conversion:** Convert XML content to JSON format.
 - **XSLT Transformation:** Transform XML to HTML using XSLT and display the HTML output.
+
+## Copywriter and License
+© [Jamal Id Aissa](https://github.com/ID-JA/), [Nazha Haida](https://github.com/nazhahaida)
+
+This project is licensed under the MIT License.
